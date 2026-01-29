@@ -2,21 +2,38 @@ name: CI - Postman API Tests (Newman)
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
 
 jobs:
   api-tests:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
       - name: Install Newman
-        run: npm install -g newman
+        run: npm i -g newman newman-reporter-htmlextra
 
       - name: Run Postman collection
-        run: newman run postman/collection.json -e postman/env.json --reporters cli
+        run: |
+          mkdir -p reports
+          newman run "postman/collection.json" \
+            -e "postman/env.json" \
+            --reporters cli,htmlextra,junit \
+            --reporter-junit-export "reports/junit.xml" \
+            --reporter-htmlextra-export "reports/report.html"
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-reports
+          path: reports
