@@ -65,8 +65,11 @@ O environment já vem configurado.
 Exemplo esperado:
 
 base_url = https://serverest.dev
+
 email = test@example.com
+
 password = 123456
+
 TOKEN =
 
 
